@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0A1A">
+<link rel="manifest" href="/static/manifest.json">
+<title>LinguaBot Arena</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0A0A1A; color: white; font-family: sans-serif; min-height: 100vh; }
+.screen { display: none; padding: 20px; max-width: 500px; margin: 0 auto; }
+.screen.active { display: block; }
+h1 { color: #00FF88; text-align: center; margin: 20px 0; font-size: 22px; }
+input { width: 100%; padding: 12px; background: #1A1A2E; border: 1px solid #333355;
+        color: white; border-radius: 8px; margin: 8px 0; font-size: 16px; }
+button { width: 100%; padding: 14px; background: #00FF88; color: #0A0A1A;
+         border: none; border-radius: 12px; font-size: 16px; font-weight: bold;
+         cursor: pointer; margin: 8px 0; }
+button.secondary { background: #1A1A2E; color: #00FF88; border: 2px solid #00FF88; }
+button.danger { background: #FF4444; color: white; }
+button.yellow { background: #FFE66D; color: #0A0A1A; }
+.card { background: #12122A; border: 1px solid #333355; border-radius: 12px;
+        padding: 16px; margin: 10px 0; }
+.error { color: #FF4444; text-align: center; margin: 8px 0; font-size: 14px; }
+.success { color: #00FF88; text-align: center; margin: 8px 0; }
+.robot { font-size: 70px; text-align: center; margin: 15px 0; }
+.robot-canvas { display: block; margin: 0 auto; border-radius: 16px; }
+.question-type { color: #4ECDC4; font-size: 12px; font-weight: bold; }
+.question-text { font-size: 18px; font-weight: bold; margin: 10px 0; line-height: 1.4; }
+.hint { color: #888; font-size: 13px; }
+.instructions { background: #0D1520; border: 1px solid #2A4A6A; border-radius: 8px;
+                padding: 12px; margin: 8px 0; color: #AAAACC; font-size: 13px; }
+.mic-btn { background: #00FF88; color: #0A0A1A; font-size: 18px; padding: 18px;
+           border-radius: 30px; }
+.mic-btn.listening { background: #FF4444; color: white; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
+.transcript { color: #00FF88; font-style: italic; margin: 8px 0; text-align: center; }
+.feedback-correct { border-color: #00FF88 !important; }
+.feedback-wrong { border-color: #FF6B6B !important; }
+.xp { color: #FFE66D; font-weight: bold; }
+.streak { color: #FFE66D; font-size: 14px; }
+.lang-btn { width: auto; padding: 8px 14px; margin: 4px; border-radius: 20px;
+            background: #1A1A2E; color: white; border: 1px solid #333355; font-size: 13px; }
+.lang-btn.selected { background: #00FF88; color: #0A0A1A; border-color: #00FF88; }
+.mode-btn { width: auto; padding: 8px 14px; margin: 4px; border-radius: 20px;
+            background: #1A1A2E; color: white; border: 1px solid #333355; font-size: 13px; }
+.mode-btn.selected { background: #FFE66D; color: #0A0A1A; border-color: #FFE66D; }
+.player-item { background: #1E1E3A; border-radius: 8px; padding: 10px 14px;
+               margin: 6px 0; font-size: 14px; }
+.room-code { font-size: 32px; font-weight: bold; text-align: center; color: white;
+             letter-spacing: 4px; margin: 10px 0; }
+.score-board { display: flex; justify-content: space-between; margin: 10px 0; }
+.score-item { text-align: center; flex: 1; }
+.score-name { font-size: 13px; color: #888; }
+.score-val { font-size: 22px; font-weight: bold; color: #00FF88; }
+.timer-bar { height: 6px; background: #1A1A2E; border-radius: 3px; margin: 8px 0; overflow: hidden; }
+.timer-fill { height: 100%; background: #00FF88; transition: width 1s linear, background 0.5s; }
+.eliminated { color: #FF4444; text-align: center; font-size: 18px; font-weight: bold; padding: 20px; }
+.alive-count { text-align: center; color: #FFE66D; font-size: 14px; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="loginScreen" class="screen active">
+  <h1>🤖 LinguaBot Arena</h1>
+  <div class="robot">🤖</div>
+  <div class="card">
+    <input id="loginUser" placeholder="Usuario" type="text">
+    <input id="loginPass" placeholder="Contraseña" type="password">
+    <button onclick="login()">INICIAR SESIÓN</button>
+    <button class="secondary" onclick="showScreen('registerScreen')">Crear cuenta</button>
+    <div id="loginError" class="error"></div>
+  </div>
+</div>
+
+<!-- ===== REGISTER ===== -->
+<div id="registerScreen" class="screen">
+  <h1>Crear Cuenta</h1>
+  <div class="card">
+    <input id="regUser" placeholder="Usuario">
+    <input id="regEmail" placeholder="Email" type="email">
+    <input id="regPass" placeholder="Contraseña" type="password">
+    <button onclick="register()">REGISTRARSE</button>
+    <button class="secondary" onclick="showScreen('loginScreen')">← Volver</button>
+    <div id="regError" class="error"></div>
+  </div>
+</div>
+
+<!-- ===== MENU ===== -->
+<div id="menuScreen" class="screen">
+  <h1>🤖 LinguaBot Arena</h1>
+  <div class="robot" id="menuRobot">🤖</div>
+  <p id="welcomeMsg" style="text-align:center;color:#888;margin-bottom:15px;"></p>
+  <div class="card" onclick="showScreen('voiceScreen')" style="cursor:pointer;border-color:#00FF88;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">🎤</span>
+      <div><div style="font-weight:bold;">Voice Training</div><div style="color:#888;font-size:13px;">Practica hablando con el robot</div></div>
+      <span style="margin-left:auto;color:#00FF88;">▶</span>
+    </div>
+  </div>
+  <div class="card" onclick="showScreen('trainingScreen')" style="cursor:pointer;border-color:#4ECDC4;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">🏠</span>
+      <div><div style="font-weight:bold;">Training</div><div style="color:#888;font-size:13px;">Practica escribiendo</div></div>
+      <span style="margin-left:auto;color:#4ECDC4;">▶</span>
+    </div>
+  </div>
+  <div class="card" onclick="showScreen('arenaLobbyScreen')" style="cursor:pointer;border-color:#FF6B6B;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:28px;">⚔️</span>
+      <div><div style="font-weight:bold;">Arena</div><div style="color:#888;font-size:13px;">Compite contra otros jugadores</div></div>
+      <span style="margin-left:auto;color:#FF6B6B;">▶</span>
+    </div>
+  </div>
+  <button class="secondary" onclick="logout()" style="margin-top:10px;">Cerrar Sesión</button>
+</div>
+
+<!-- ===== VOICE TRAINING ===== -->
+<div id="voiceScreen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <button class="secondary" style="width:auto;padding:8px 14px;" onclick="endVoiceSession()">←</button>
+    <h1 style="margin:0;font-size:18px;">🎤 Voice Training</h1>
+    <span id="voiceStreak" class="streak">🔥 0</span>
+  </div>
+
+  <!-- ROBOT PIXEL ART -->
+  <canvas id="voiceRobotCanvas" class="robot-canvas" width="220" height="220"></canvas>
+
+  <div style="text-align:center;margin-bottom:12px;margin-top:8px;">
+    <button class="lang-btn" onclick="selectLang('english',this)">🇺🇸 Inglés</button>
+    <button class="lang-btn" onclick="selectLang('french',this)">🇫🇷 Francés</button>
+    <button class="lang-btn" onclick="selectLang('german',this)">🇩🇪 Alemán</button>
+  </div>
+  <div id="voiceQuestion" class="card" style="display:none;">
+    <div id="voiceQType" class="question-type"></div>
+    <div id="voiceQText" class="question-text"></div>
+    <div id="voiceHint" class="hint"></div>
+  </div>
+  <div id="voiceInstructions" class="instructions" style="display:none;"></div>
+  <div id="voiceTranscript" class="transcript" style="display:none;"></div>
+  <div id="voiceFeedback" class="card" style="display:none;">
+    <div id="voiceFeedbackEmoji" style="font-size:28px;text-align:center;"></div>
+    <div id="voiceFeedbackText" style="text-align:center;margin:8px 0;font-size:14px;"></div>
+    <div id="voiceCorrection" style="color:#FF6B6B;text-align:center;font-size:13px;display:none;"></div>
+    <div id="voiceXp" class="xp" style="text-align:center;"></div>
+  </div>
+  <div id="micStatusLabel" style="text-align:center;color:#AAAACC;font-size:13px;margin:8px 0;display:none;"></div>
+  <button id="micBtn" class="mic-btn" onclick="handleMic()" style="display:none;">🎤 INICIAR</button>
+</div>
+
+<!-- ===== TRAINING (texto) ===== -->
+<div id="trainingScreen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <button class="secondary" style="width:auto;padding:8px 14px;" onclick="endTrainingSession()">←</button>
+    <h1 style="margin:0;font-size:18px;">🏠 Training</h1>
+    <span id="trainingStreak" class="streak">🔥 0</span>
+  </div>
+  <div style="text-align:center;margin-bottom:12px;">
+    <button class="lang-btn" onclick="selectTrainingLang('english',this)">🇺🇸 Inglés</button>
+    <button class="lang-btn" onclick="selectTrainingLang('french',this)">🇫🇷 Francés</button>
+    <button class="lang-btn" onclick="selectTrainingLang('german',this)">🇩🇪 Alemán</button>
+  </div>
+  <div id="trainingQuestion" class="card" style="display:none;">
+    <div id="trainingQType" class="question-type"></div>
+    <div id="trainingQText" class="question-text"></div>
+    <div id="trainingHint" class="hint"></div>
+  </div>
+  <div id="trainingFeedback" class="card" style="display:none;">
+    <div id="trainingFeedbackEmoji" style="font-size:28px;text-align:center;"></div>
+    <div id="trainingFeedbackText" style="text-align:center;margin:8px 0;font-size:14px;"></div>
+    <div id="trainingCorrection" style="color:#FF6B6B;text-align:center;font-size:13px;display:none;"></div>
+    <div id="trainingXp" class="xp" style="text-align:center;"></div>
+  </div>
+  <input id="trainingAnswer" placeholder="Escribe tu respuesta..." style="display:none;">
+  <button id="trainingBtn" onclick="handleTraining()" style="display:none;">INICIAR</button>
+</div>
+
+<!-- ===== ARENA LOBBY ===== -->
+<div id="arenaLobbyScreen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <button class="secondary" style="width:auto;padding:8px 14px;" onclick="leaveArena()">←</button>
+    <h1 style="margin:0;font-size:18px;">⚔️ Arena</h1>
+    <span></span>
+  </div>
+  <div class="robot" id="arenaRobot">🤖</div>
+  <p id="arenaStatus" style="text-align:center;color:#00FF88;font-size:14px;margin-bottom:12px;">¿Listo para batallar?</p>
+  <div class="card">
+    <div style="color:#888;font-size:12px;font-weight:bold;margin-bottom:8px;">CREAR SALA</div>
+    <div style="text-align:center;margin-bottom:8px;">
+      <button class="lang-btn" onclick="selectArenaLang('english',this)">🇺🇸 Inglés</button>
+      <button class="lang-btn" onclick="selectArenaLang('french',this)">🇫🇷 Francés</button>
+      <button class="lang-btn" onclick="selectArenaLang('german',this)">🇩🇪 Alemán</button>
+    </div>
+    <div style="text-align:center;margin-bottom:8px;">
+      <button class="mode-btn selected" id="modeClassic" onclick="selectMode('classic',this)">⚔️ Clásico</button>
+      <button class="mode-btn" id="modeBR" onclick="selectMode('battle_royale',this)">👑 Battle Royale</button>
+    </div>
+    <button onclick="createRoom()">⚔️ CREAR SALA</button>
+  </div>
+  <div class="card">
+    <div style="color:#888;font-size:12px;font-weight:bold;margin-bottom:8px;">UNIRSE A SALA</div>
+    <input id="roomCodeInput" placeholder="Código de sala (ej: ABC123)" maxlength="6" style="text-align:center;font-size:20px;font-weight:bold;letter-spacing:3px;">
+    <button class="secondary" onclick="joinRoom()">🚀 UNIRSE</button>
+  </div>
+  <div id="activeRoomPanel" class="card" style="display:none;border-color:#00FF88;">
+    <div style="color:#00FF88;font-size:12px;font-weight:bold;">SALA ACTIVA</div>
+    <div id="activeRoomCode" class="room-code"></div>
+    <div id="activeRoomMode" style="text-align:center;color:#FFE66D;font-size:13px;margin-bottom:8px;"></div>
+    <div id="playersList"></div>
+    <div id="waitingMsg" style="text-align:center;color:#888;font-size:13px;margin:8px 0;">⏳ Esperando jugadores...</div>
+    <button id="startGameBtn" onclick="startGame()" style="display:none;">🎮 INICIAR BATALLA</button>
+    <div id="waitHostMsg" style="text-align:center;color:#888;font-size:13px;display:none;">⏳ Esperando que el host inicie...</div>
+  </div>
+  <div id="arenaError" class="error"></div>
+</div>
+
+<!-- ===== ARENA GAME ===== -->
+<div id="arenaGameScreen" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <span id="arenaRound" style="color:#888;font-size:13px;">Ronda 1</span>
+    <span id="arenaAlive" class="alive-count"></span>
+    <span id="arenaMyScore" style="color:#00FF88;font-weight:bold;">0 pts</span>
+  </div>
+  <div class="score-board" id="arenaScoreBoard"></div>
+  <div class="timer-bar"><div id="arenaTimerFill" class="timer-fill" style="width:100%;"></div></div>
+  <div id="arenaTimerLabel" style="text-align:center;color:#888;font-size:12px;margin-bottom:8px;">20s</div>
+  <div class="card" id="arenaQuestionCard" style="border-color:#4ECDC4;">
+    <div id="arenaRobotEmoji" style="font-size:40px;text-align:center;margin-bottom:8px;">⏳</div>
+    <div id="arenaQType" class="question-type"></div>
+    <div id="arenaQText" class="question-text" style="text-align:center;"></div>
+  </div>
+  <div id="arenaFeedbackCard" class="card" style="display:none;">
+    <div id="arenaFeedbackEmoji" style="font-size:28px;text-align:center;"></div>
+    <div id="arenaFeedbackText" style="text-align:center;font-size:14px;margin:8px 0;"></div>
+    <div id="arenaCorrectAnswer" style="color:#FFE66D;text-align:center;font-size:13px;"></div>
+  </div>
+  <div id="arenaEliminatedMsg" class="eliminated" style="display:none;">💀 ¡Fuiste eliminado!</div>
+  <input id="arenaAnswer" placeholder="Tu respuesta..." style="margin:10px 0;">
+  <button id="arenaSubmitBtn" onclick="submitArenaAnswer()">ENVIAR RESPUESTA</button>
+  <button id="arenaLeaveBtn" class="secondary" onclick="leaveArenaGame()" style="display:none;">Salir</button>
+</div>
+
+<!-- ===== ARENA GAME OVER ===== -->
+<div id="arenaGameOverScreen" class="screen">
+  <h1>🏆 Fin del Juego</h1>
+  <div class="robot" id="gameOverRobot">🏆</div>
+  <div class="card" style="text-align:center;border-color:#FFE66D;">
+    <div style="color:#FFE66D;font-size:14px;margin-bottom:8px;">GANADOR</div>
+    <div id="gameOverWinner" style="font-size:26px;font-weight:bold;color:#00FF88;"></div>
+  </div>
+  <div id="gameOverScores" class="card"></div>
+  <button onclick="showScreen('arenaLobbyScreen')">Jugar de nuevo</button>
+  <button class="secondary" onclick="showScreen('menuScreen')">Menú principal</button>
+</div>
+
+<script>
+const API = 'https://linguabot-api-production.up.railway.app';
+let token = localStorage.getItem('token') || '';
+let username = localStorage.getItem('username') || '';
+
+if (token) { loadMenu(); showScreen('menuScreen'); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== AUTH =====
+async function login() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (!u || !p) { document.getElementById('loginError').textContent = 'Completa todos los campos'; return; }
+  try {
+    const r = await fetch(`${API}/auth/login`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username:u, password:p})
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      token = d.access_token; username = d.username || u;
+      localStorage.setItem('token', token); localStorage.setItem('username', username);
+      loadMenu(); showScreen('menuScreen');
+    } else { document.getElementById('loginError').textContent = 'Usuario o contraseña incorrectos'; }
+  } catch(e) { document.getElementById('loginError').textContent = 'Error de conexión'; }
+}
+
+async function register() {
+  const u = document.getElementById('regUser').value.trim();
+  const e = document.getElementById('regEmail').value.trim();
+  const p = document.getElementById('regPass').value;
+  try {
+    const r = await fetch(`${API}/auth/register`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username:u, email:e, password:p, avatar_color:'#00FF88'})
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      token = d.access_token; username = u;
+      localStorage.setItem('token', token); localStorage.setItem('username', username);
+      loadMenu(); showScreen('menuScreen');
+    } else { document.getElementById('regError').textContent = 'Error al registrar'; }
+  } catch(e) { document.getElementById('regError').textContent = 'Error de conexión'; }
+}
+
+function loadMenu() {
+  document.getElementById('welcomeMsg').textContent = `¡Hola, ${username}! 👋`;
+}
+
+function logout() {
+  token = ''; username = '';
+  localStorage.removeItem('token'); localStorage.removeItem('username');
+  showScreen('loginScreen');
+}
+
+// ===== PIXEL ART ROBOT =====
+const rCanvas = document.getElementById('voiceRobotCanvas');
+const rCtx = rCanvas ? rCanvas.getContext('2d') : null;
+let robotT = 0;
+let robotEmotion = 'neutral';
+
+function setRobotEmotion(e) { robotEmotion = e; }
+
+function getRobotColor() {
+  return {
+    happy:'#00FF88', very_happy:'#00FF88', sad:'#4488FF',
+    listening:'#FF4444', talking:'#FFE66D', neutral:'#00FF88'
+  }[robotEmotion] || '#00FF88';
+}
+
+function px(col, row, ps, sx, sy, color) {
+  rCtx.fillStyle = color;
+  rCtx.fillRect(Math.round(sx + col * ps), Math.round(sy + row * ps), Math.ceil(ps - 0.5), Math.ceil(ps - 0.5));
+}
+
+function drawRobotFrame() {
+  if (!rCtx) return;
+  const w = rCanvas.width, h = rCanvas.height;
+  const ps = Math.min(w, h) / 22;
+  const cx = w / 2;
+  const bob = Math.sin(robotT * 2) * ps * 0.8;
+  const sy = (h - 20 * ps) / 2 + bob;
+  const sx = cx - 7 * ps;
+  const color = getRobotColor();
+  const talking = robotEmotion === 'talking';
+  const blinking = Math.floor(robotT * 2) % 60 < 3;
+  const armAngle = robotEmotion === 'very_happy' ? Math.sin(robotT * 5) * 20 :
+                   robotEmotion === 'listening'  ? Math.sin(robotT * 2) * 8 : 0;
+  const leftLegOff  = Math.sin(robotT * 4) > 0 ? 0 : -1;
+  const rightLegOff = Math.sin(robotT * 4) > 0 ? -1 : 0;
+
+  // Background
+  rCtx.fillStyle = '#12122A';
+  rCtx.fillRect(0, 0, w, h);
+
+  // Glow
+  rCtx.globalAlpha = 0.06 + Math.abs(Math.sin(robotT)) * 0.04;
+  rCtx.beginPath();
+  rCtx.arc(cx, h / 2 + bob, ps * 7, 0, Math.PI * 2);
+  rCtx.fillStyle = color;
+  rCtx.fill();
+  rCtx.globalAlpha = 1;
+
+  // Antenna
+  const antP = 0.5 + Math.abs(Math.sin(robotT * 4)) * 0.5;
+  rCtx.globalAlpha = antP;
+  px(6, -2, ps, sx, sy, '#FFE66D');
+  rCtx.globalAlpha = 1;
+  px(6, -1, ps, sx, sy, '#444466');
+
+  // Head border
+  for (let c = 1; c <= 12; c++) px(c, 0, ps, sx, sy, '#1A1A3A');
+  for (let row = 1; row <= 5; row++) {
+    px(0, row, ps, sx, sy, '#1A1A3A');
+    for (let c = 1; c <= 12; c++) px(c, row, ps, sx, sy, '#2A2A5A');
+    px(13, row, ps, sx, sy, '#1A1A3A');
+  }
+  for (let c = 1; c <= 12; c++) px(c, 6, ps, sx, sy, '#1A1A3A');
+
+  // Eyes
+  if (!blinking) {
+    [[2,2],[3,2],[4,2],[2,3],[4,3],[2,4],[3,4],[4,4]].forEach(([c,r]) => px(c,r,ps,sx,sy,color));
+    px(3, 3, ps, sx, sy, 'white');
+    [[9,2],[10,2],[11,2],[9,3],[11,3],[9,4],[10,4],[11,4]].forEach(([c,r]) => px(c,r,ps,sx,sy,color));
+    px(10, 3, ps, sx, sy, 'white');
+  } else {
+    [2,3,4].forEach(c => px(c, 3, ps, sx, sy, color));
+    [9,10,11].forEach(c => px(c, 3, ps, sx, sy, color));
+  }
+
+  // Mouth
+  if (talking) {
+    const ms = 1 + Math.floor(Math.abs(Math.sin(robotT * 6)) * 2);
+    [4,5,6,7,8,9].forEach(c => px(c, 5, ps, sx, sy, color));
+    for (let c = 5; c <= 8; c++)
+      for (let r = 5; r <= 5 + ms; r++) px(c, r, ps, sx, sy, '#0A0A1A');
+  } else if (robotEmotion === 'happy' || robotEmotion === 'very_happy') {
+    px(4, 5, ps, sx, sy, color);
+    [5,6,7,8].forEach(c => px(c, 4, ps, sx, sy, color));
+    px(9, 5, ps, sx, sy, color);
+  } else if (robotEmotion === 'sad') {
+    px(4, 4, ps, sx, sy, color);
+    [5,6,7,8].forEach(c => px(c, 5, ps, sx, sy, color));
+    px(9, 4, ps, sx, sy, color);
+  } else {
+    [4,5,6,7,8,9].forEach(c => px(c, 5, ps, sx, sy, color));
+  }
+
+  // Neck
+  [5,6,7,8].forEach(c => px(c, 7, ps, sx, sy, '#222240'));
+
+  // Body
+  for (let row = 8; row <= 14; row++) {
+    px(1, row, ps, sx, sy, '#1A1A3A');
+    for (let c = 2; c <= 11; c++) px(c, row, ps, sx, sy, '#2A2A5A');
+    px(12, row, ps, sx, sy, '#1A1A3A');
+  }
+
+  // Reactor
+  const rp = 0.6 + Math.abs(Math.sin(robotT * 3)) * 0.4;
+  rCtx.globalAlpha = rp;
+  [[5,10],[8,10],[6,9],[7,9],[6,11],[7,11]].forEach(([c,r]) => px(c, r, ps, sx, sy, color));
+  rCtx.globalAlpha = 1;
+  px(6, 10, ps, sx, sy, 'white');
+  px(7, 10, ps, sx, sy, color);
+  for (let c = 3; c <= 10; c++) px(c, 12, ps, sx, sy, '#444466');
+
+  // Left arm
+  rCtx.save();
+  rCtx.translate(sx + 1 * ps, sy + 8 * ps);
+  rCtx.rotate(-armAngle * Math.PI / 180);
+  rCtx.translate(-(sx + 1 * ps), -(sy + 8 * ps));
+  for (let row = 8; row <= 13; row++) { px(-1, row, ps, sx, sy, '#1A1A3A'); px(0, row, ps, sx, sy, '#2A2A5A'); }
+  px(-1, 14, ps, sx, sy, '#444466'); px(0, 14, ps, sx, sy, '#444466');
+  rCtx.restore();
+
+  // Right arm
+  rCtx.save();
+  rCtx.translate(sx + 12 * ps, sy + 8 * ps);
+  rCtx.rotate(armAngle * Math.PI / 180);
+  rCtx.translate(-(sx + 12 * ps), -(sy + 8 * ps));
+  for (let row = 8; row <= 13; row++) { px(13, row, ps, sx, sy, '#2A2A5A'); px(14, row, ps, sx, sy, '#1A1A3A'); }
+  px(13, 14, ps, sx, sy, '#444466'); px(14, 14, ps, sx, sy, '#444466');
+  rCtx.restore();
+
+  // Legs
+  for (let row = 15; row <= 18; row++) {
+    px(3,  row + leftLegOff,  ps, sx, sy, '#1A1A3A');
+    px(4,  row + leftLegOff,  ps, sx, sy, '#2A2A5A');
+    px(5,  row + leftLegOff,  ps, sx, sy, '#1A1A3A');
+    px(8,  row + rightLegOff, ps, sx, sy, '#1A1A3A');
+    px(9,  row + rightLegOff, ps, sx, sy, '#2A2A5A');
+    px(10, row + rightLegOff, ps, sx, sy, '#1A1A3A');
+  }
+  [2,3,4,5].forEach(c => px(c, 19, ps, sx, sy, '#444466'));
+  [8,9,10,11].forEach(c => px(c, 19, ps, sx, sy, '#444466'));
+
+  // Particles when very happy
+  if (robotEmotion === 'very_happy' && Math.random() < 0.3) {
+    rCtx.globalAlpha = Math.random() * 0.8;
+    rCtx.fillStyle = color;
+    rCtx.fillRect(sx + Math.random() * 14 * ps, sy + Math.random() * 8 * ps, ps * 0.8, ps * 0.8);
+    rCtx.globalAlpha = 1;
+  }
+
+  robotT += 0.05;
+  requestAnimationFrame(drawRobotFrame);
+}
+
+if (rCtx) drawRobotFrame();
+
+// ===== VOICE TRAINING =====
+let selectedLang = 'english';
+let voiceSessionId = 0;
+let voiceChallenge = {};
+let voicePlaying = false;
+let isListening = false;
+let recognition = null;
+let recognitionTimeout = null;
+
+function selectLang(lang, btn) {
+  selectedLang = lang;
+  document.querySelectorAll('#voiceScreen .lang-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('micBtn').style.display = 'block';
+  document.getElementById('micBtn').textContent = '🎤 INICIAR';
+  document.getElementById('micStatusLabel').style.display = 'block';
+  document.getElementById('micStatusLabel').textContent = 'Presiona para comenzar';
+  voicePlaying = false;
+}
+
+async function handleMic() {
+  if (!voicePlaying) await startVoiceSession();
+  else if (!isListening) startListening();
+  else stopListening();
+}
+
+async function startVoiceSession() {
+  document.getElementById('micBtn').textContent = '⏳ Cargando...';
+  document.getElementById('micBtn').disabled = true;
+  setRobotEmotion('talking');
+  try {
+    const r = await fetch(`${API}/local/session/start`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({language: selectedLang, token})
+    });
+    const d = await r.json();
+    voiceSessionId = d.session_id;
+    showVoiceChallenge(d.challenge);
+    voicePlaying = true;
+    speakText(d.challenge.question);
+  } catch(e) {
+    document.getElementById('micStatusLabel').textContent = 'Error conectando al servidor';
+    setRobotEmotion('sad');
+  }
+  document.getElementById('micBtn').disabled = false;
+  document.getElementById('micBtn').textContent = '🎤 HABLAR';
+}
+
+function showVoiceChallenge(c) {
+  voiceChallenge = c;
+  document.getElementById('voiceQType').textContent = c.type.toUpperCase().replace(/_/g,' ');
+  document.getElementById('voiceQText').textContent = c.question;
+  document.getElementById('voiceHint').textContent = c.hint ? `💡 ${c.hint}` : '';
+  document.getElementById('voiceQuestion').style.display = 'block';
+  document.getElementById('voiceFeedback').style.display = 'none';
+  document.getElementById('voiceTranscript').style.display = 'none';
+  const instructions = {
+    'translation':'🎤 Escucha y di la frase en voz alta en el idioma indicado.',
+    'fill_blank':'🎤 Di en voz alta la palabra que falta.',
+    'sentence_correction':'🎤 Di la oración corregida en voz alta.',
+    'word_definition':'🎤 Di la definición de la palabra.',
+    'conjugation':'🎤 Conjuga el verbo en voz alta.',
+    'vocabulary':'🎤 Di la traducción de la palabra.'
+  };
+  document.getElementById('voiceInstructions').textContent = instructions[c.type] || '🎤 Responde hablando claramente.';
+  document.getElementById('voiceInstructions').style.display = 'block';
+  document.getElementById('micStatusLabel').textContent = 'Presiona 🎤 y responde hablando';
+  document.getElementById('micStatusLabel').style.display = 'block';
+  setRobotEmotion('neutral');
+}
+
+function speakText(text) {
+  speechSynthesis.cancel();
+  setRobotEmotion('talking');
+  const u = new SpeechSynthesisUtterance(text);
+  const langMap = {english:'en-US', french:'fr-FR', german:'de-DE'};
+  u.lang = langMap[selectedLang] || 'en-US';
+  u.pitch = 1.2; u.rate = 0.9;
+  u.onend = () => setRobotEmotion('neutral');
+  speechSynthesis.speak(u);
+}
+
+function startListening() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('micStatusLabel').textContent = '⚠️ Usa Chrome para reconocimiento de voz';
+    return;
+  }
+  if (recognition) { try { recognition.abort(); } catch(e){} }
+  recognition = new SR();
+  const langMap = {english:'en-US', french:'fr-FR', german:'de-DE'};
+  recognition.lang = langMap[selectedLang] || 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  isListening = true;
+  document.getElementById('micBtn').textContent = '⏹ DETENER';
+  document.getElementById('micBtn').classList.add('listening');
+  setRobotEmotion('listening');
+  document.getElementById('micStatusLabel').textContent = '🔴 Escuchando...';
+  let finalTranscript = '';
+  recognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById('voiceTranscript').textContent = `🗣 "${interim || finalTranscript.trim()}"`;
+    document.getElementById('voiceTranscript').style.display = 'block';
+    clearTimeout(recognitionTimeout);
+    if (finalTranscript.trim()) {
+      recognitionTimeout = setTimeout(() => {
+        if (isListening && finalTranscript.trim()) {
+          const text = finalTranscript.trim();
+          stopListening();
+          submitVoiceAnswer(text);
+          finalTranscript = '';
+        }
+      }, 1500);
+    }
+  };
+  recognition.onerror = (e) => {
+    if (e.error !== 'aborted') document.getElementById('micStatusLabel').textContent = `⚠️ Error: ${e.error}`;
+    stopListening();
+  };
+  recognition.onend = () => {
+    if (isListening) { try { recognition.start(); } catch(e) { stopListening(); } }
+  };
+  recognition.start();
+}
+
+function stopListening() {
+  clearTimeout(recognitionTimeout);
+  isListening = false;
+  if (recognition) { try { recognition.abort(); } catch(e){} recognition = null; }
+  document.getElementById('micBtn').textContent = '🎤 HABLAR';
+  document.getElementById('micBtn').classList.remove('listening');
+  setRobotEmotion('neutral');
+  document.getElementById('micStatusLabel').textContent = 'Presiona 🎤 para responder';
+}
+
+async function submitVoiceAnswer(answer) {
+  setRobotEmotion('neutral');
+  document.getElementById('micStatusLabel').textContent = 'Evaluando...';
+  try {
+    const r = await fetch(`${API}/local/answer`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        session_id: voiceSessionId, challenge_type: voiceChallenge.type,
+        question: voiceChallenge.question, correct_answer: voiceChallenge.correct_answer,
+        player_answer: answer, response_time_seconds: 5, token
+      })
+    });
+    const d = await r.json();
+    showVoiceFeedback(d);
+    if (d.next_challenge) setTimeout(() => { showVoiceChallenge(d.next_challenge); speakText(d.next_challenge.question); }, 3000);
+  } catch(e) { document.getElementById('micStatusLabel').textContent = 'Error evaluando respuesta'; }
+}
+
+function showVoiceFeedback(d) {
+  const ev = d.evaluation; const ok = ev?.is_correct;
+  setRobotEmotion(ok ? 'very_happy' : 'sad');
+  document.getElementById('voiceFeedbackEmoji').textContent = ok ? '✅' : '❌';
+  document.getElementById('voiceFeedbackText').textContent = ev?.feedback || '';
+  document.getElementById('voiceXp').textContent = d.xp_breakdown?.total > 0 ? `+${d.xp_breakdown.total} XP` : '';
+  document.getElementById('voiceStreak').textContent = `🔥 ${d.current_streak || 0}`;
+  const corr = ev?.correction;
+  const corrEl = document.getElementById('voiceCorrection');
+  if (corr && corr !== 'null') { corrEl.textContent = `Correcto: ${corr}`; corrEl.style.display = 'block'; }
+  else corrEl.style.display = 'none';
+  const fb = document.getElementById('voiceFeedback');
+  fb.className = `card ${ok ? 'feedback-correct' : 'feedback-wrong'}`;
+  fb.style.display = 'block';
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(ev?.feedback || '');
+  u.lang = {english:'en-US', french:'fr-FR', german:'de-DE'}[selectedLang] || 'en-US';
+  u.onstart = () => setRobotEmotion('talking');
+  u.onend   = () => setRobotEmotion('neutral');
+  speechSynthesis.speak(u);
+}
+
+async function endVoiceSession() {
+  stopListening(); speechSynthesis.cancel();
+  if (voiceSessionId > 0) {
+    await fetch(`${API}/local/session/end`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({session_id: voiceSessionId, token})
+    });
+    voiceSessionId = 0;
+  }
+  voicePlaying = false;
+  setRobotEmotion('neutral');
+  showScreen('menuScreen');
+}
+
+// ===== TRAINING (texto) =====
+let selectedTrainingLang = 'english';
+let trainingSessionId = 0;
+let trainingChallenge = {};
+let trainingPlaying = false;
+
+function selectTrainingLang(lang, btn) {
+  selectedTrainingLang = lang;
+  document.querySelectorAll('#trainingScreen .lang-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('trainingBtn').style.display = 'block';
+  document.getElementById('trainingAnswer').style.display = 'block';
+}
+
+async function handleTraining() {
+  if (!trainingPlaying) await startTrainingSession();
+  else await submitTrainingAnswer();
+}
+
+async function startTrainingSession() {
+  document.getElementById('trainingBtn').textContent = '⏳ Cargando...';
+  try {
+    const r = await fetch(`${API}/local/session/start`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({language: selectedTrainingLang, token})
+    });
+    const d = await r.json();
+    trainingSessionId = d.session_id;
+    showTrainingChallenge(d.challenge);
+    trainingPlaying = true;
+  } catch(e) {}
+  document.getElementById('trainingBtn').textContent = 'ENVIAR RESPUESTA';
+}
+
+function showTrainingChallenge(c) {
+  trainingChallenge = c;
+  document.getElementById('trainingQType').textContent = c.type.toUpperCase().replace(/_/g,' ');
+  document.getElementById('trainingQText').textContent = c.question;
+  document.getElementById('trainingHint').textContent = c.hint ? `💡 ${c.hint}` : '';
+  document.getElementById('trainingQuestion').style.display = 'block';
+  document.getElementById('trainingFeedback').style.display = 'none';
+  document.getElementById('trainingAnswer').value = '';
+}
+
+async function submitTrainingAnswer() {
+  const answer = document.getElementById('trainingAnswer').value.trim();
+  if (!answer) return;
+  try {
+    const r = await fetch(`${API}/local/answer`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        session_id: trainingSessionId, challenge_type: trainingChallenge.type,
+        question: trainingChallenge.question, correct_answer: trainingChallenge.correct_answer,
+        player_answer: answer, response_time_seconds: 5, token
+      })
+    });
+    const d = await r.json();
+    const ev = d.evaluation; const ok = ev?.is_correct;
+    document.getElementById('trainingFeedbackEmoji').textContent = ok ? '✅' : '❌';
+    document.getElementById('trainingFeedbackText').textContent = ev?.feedback || '';
+    document.getElementById('trainingXp').textContent = d.xp_breakdown?.total > 0 ? `+${d.xp_breakdown.total} XP` : '';
+    document.getElementById('trainingStreak').textContent = `🔥 ${d.current_streak || 0}`;
+    const corr = ev?.correction;
+    const corrEl = document.getElementById('trainingCorrection');
+    if (corr && corr !== 'null') { corrEl.textContent = `Correcto: ${corr}`; corrEl.style.display = 'block'; }
+    else corrEl.style.display = 'none';
+    const fb = document.getElementById('trainingFeedback');
+    fb.className = `card ${ok ? 'feedback-correct' : 'feedback-wrong'}`;
+    fb.style.display = 'block';
+    if (d.next_challenge) setTimeout(() => showTrainingChallenge(d.next_challenge), 2500);
+  } catch(e) {}
+}
+
+async function endTrainingSession() {
+  if (trainingSessionId > 0) {
+    await fetch(`${API}/local/session/end`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({session_id: trainingSessionId, token})
+    });
+    trainingSessionId = 0;
+  }
+  trainingPlaying = false;
+  showScreen('menuScreen');
+}
+
+// ===== ARENA =====
+let arenaLang = 'english';
+let arenaMode = 'classic';
+let arenaRoomCode = '';
+let arenaWs = null;
+let isHost = false;
+let arenaChallenge = {};
+let arenaSessionActive = false;
+let timerInterval = null;
+let timerSeconds = 20;
+
+function selectArenaLang(lang, btn) {
+  arenaLang = lang;
+  document.querySelectorAll('#arenaLobbyScreen .lang-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function selectMode(mode, btn) {
+  arenaMode = mode;
+  document.getElementById('modeClassic').classList.remove('selected');
+  document.getElementById('modeBR').classList.remove('selected');
+  btn.classList.add('selected');
+}
+
+async function createRoom() {
+  document.getElementById('arenaError').textContent = '';
+  try {
+    const r = await fetch(`${API}/arena/room/create?token=${token}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({language: arenaLang, total_rounds: 5, mode: arenaMode})
+    });
+    const d = await r.json();
+    arenaRoomCode = d.room_code; isHost = true;
+    showActiveRoom(arenaRoomCode, arenaLang, arenaMode);
+    connectArenaWS(arenaRoomCode);
+  } catch(e) { document.getElementById('arenaError').textContent = 'Error creando sala'; }
+}
+
+async function joinRoom() {
+  const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+  if (code.length < 4) { document.getElementById('arenaError').textContent = 'Ingresa un código válido'; return; }
+  document.getElementById('arenaError').textContent = '';
+  try {
+    const r = await fetch(`${API}/arena/room/${code}`);
+    const d = await r.json();
+    arenaRoomCode = code; isHost = false;
+    showActiveRoom(code, d.language, d.mode);
+    connectArenaWS(code);
+  } catch(e) { document.getElementById('arenaError').textContent = 'Sala no encontrada'; }
+}
+
+function showActiveRoom(code, lang, mode) {
+  document.getElementById('activeRoomCode').textContent = code;
+  const langNames = {english:'🇺🇸 Inglés', french:'🇫🇷 Francés', german:'🇩🇪 Alemán'};
+  const modeNames = {classic:'⚔️ Modo Clásico', battle_royale:'👑 Battle Royale'};
+  document.getElementById('activeRoomMode').textContent = `${langNames[lang]||lang} • ${modeNames[mode]||mode}`;
+  document.getElementById('activeRoomPanel').style.display = 'block';
+  document.getElementById('playersList').innerHTML = `<div class="player-item">🤖 ${username} • ${isHost?'👑 Host':'Jugador'}</div>`;
+  document.getElementById('startGameBtn').style.display = 'none';
+  document.getElementById('waitHostMsg').style.display = isHost ? 'none' : 'block';
+}
+
+function connectArenaWS(code) {
+  const wsUrl = API.replace('https://','wss://').replace('http://','ws://');
+  arenaWs = new WebSocket(`${wsUrl}/arena/ws/${code}/${Date.now()}/${username}`);
+  arenaWs.onmessage = (e) => handleArenaMessage(JSON.parse(e.data));
+  arenaWs.onerror = () => { document.getElementById('arenaError').textContent = 'Error conectando al WebSocket'; };
+  arenaWs.onclose = () => { if (arenaSessionActive) document.getElementById('arenaError').textContent = 'Conexión perdida'; };
+}
+
+function handleArenaMessage(msg) {
+  switch(msg.event) {
+    case 'player_joined':
+      updatePlayersList(msg.players, msg.player_count);
+      document.getElementById('arenaStatus').textContent = `👥 ${msg.player_count} jugador(es) conectados`;
+      if (isHost && msg.player_count >= 2) document.getElementById('startGameBtn').style.display = 'block';
+      break;
+    case 'player_disconnected':
+      document.getElementById('arenaStatus').textContent = `👥 ${msg.player_count} jugador(es)`;
+      if (isHost && msg.player_count < 2) document.getElementById('startGameBtn').style.display = 'none';
+      break;
+    case 'game_starting':
+      document.getElementById('arenaStatus').textContent = '🔥 ¡La batalla comienza!';
+      document.getElementById('arenaRobot').textContent = '🔥';
+      break;
+    case 'countdown':
+      document.getElementById('arenaStatus').textContent = `⚔️ Iniciando en ${msg.count}...`;
+      break;
+    case 'round_start':  arenaSessionActive = true; showArenaRound(msg); break;
+    case 'round_result': showArenaRoundResult(msg); break;
+    case 'player_eliminated': showArenaEliminated(msg); break;
+    case 'game_over':    showArenaGameOver(msg); break;
+    case 'answer_received': document.getElementById('arenaRobotEmoji').textContent = '⏳'; break;
+    case 'error': document.getElementById('arenaError').textContent = msg.message; break;
+  }
+}
+
+function updatePlayersList(players, count) {
+  document.getElementById('playersList').innerHTML = players.map((p,i) =>
+    `<div class="player-item">🤖 ${p} • ${i===0?'👑 Host':'⚔️ Jugador'}</div>`).join('');
+  if (count >= 2) document.getElementById('waitingMsg').style.display = 'none';
+}
+
+function startGame() {
+  if (arenaWs && arenaWs.readyState === 1) {
+    arenaWs.send(JSON.stringify({event:'start_game'}));
+    document.getElementById('startGameBtn').disabled = true;
+    document.getElementById('startGameBtn').textContent = '⏳ Iniciando...';
+  }
+}
+
+function showArenaRound(msg) {
+  showScreen('arenaGameScreen');
+  arenaChallenge = msg.challenge;
+  document.getElementById('arenaRound').textContent = `Ronda ${msg.round}`;
+  document.getElementById('arenaAlive').textContent = msg.players_alive_count ? `👥 ${msg.players_alive_count} vivos` : '';
+  document.getElementById('arenaQType').textContent = msg.challenge.type.toUpperCase().replace(/_/g,' ');
+  document.getElementById('arenaQText').textContent = msg.challenge.question;
+  document.getElementById('arenaRobotEmoji').textContent = '🤔';
+  document.getElementById('arenaFeedbackCard').style.display = 'none';
+  document.getElementById('arenaEliminatedMsg').style.display = 'none';
+  document.getElementById('arenaAnswer').value = '';
+  document.getElementById('arenaAnswer').disabled = false;
+  document.getElementById('arenaSubmitBtn').disabled = false;
+  document.getElementById('arenaSubmitBtn').style.display = 'block';
+  document.getElementById('arenaLeaveBtn').style.display = 'none';
+  clearInterval(timerInterval);
+  timerSeconds = msg.time_limit || 20;
+  updateTimer(timerSeconds, timerSeconds);
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    updateTimer(timerSeconds, msg.time_limit || 20);
+    if (timerSeconds <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+function updateTimer(remaining, total) {
+  const pct = (remaining / total) * 100;
+  const fill = document.getElementById('arenaTimerFill');
+  fill.style.width = `${pct}%`;
+  fill.style.background = pct > 50 ? '#00FF88' : pct > 25 ? '#FFE66D' : '#FF4444';
+  document.getElementById('arenaTimerLabel').textContent = `${remaining}s`;
+}
+
+function submitArenaAnswer() {
+  const answer = document.getElementById('arenaAnswer').value.trim();
+  if (!answer || !arenaWs) return;
+  arenaWs.send(JSON.stringify({event:'submit_answer', answer, response_time: 20 - timerSeconds}));
+  document.getElementById('arenaSubmitBtn').disabled = true;
+  document.getElementById('arenaAnswer').disabled = true;
+  document.getElementById('arenaRobotEmoji').textContent = '⏳';
+}
+
+function showArenaRoundResult(msg) {
+  clearInterval(timerInterval);
+  const key = Object.keys(msg.results||{}).find(k => msg.results[k].username === username);
+  const myResult = key ? msg.results[key] : null;
+  if (myResult) {
+    const ok = myResult.evaluation?.is_correct;
+    document.getElementById('arenaRobotEmoji').textContent = ok ? '😄' : '😢';
+    document.getElementById('arenaFeedbackEmoji').textContent = ok ? '✅' : '❌';
+    document.getElementById('arenaFeedbackText').textContent = myResult.evaluation?.feedback || '';
+    document.getElementById('arenaCorrectAnswer').textContent = `Respuesta: ${msg.correct_answer}`;
+    document.getElementById('arenaFeedbackCard').style.display = 'block';
+    document.getElementById('arenaMyScore').textContent = `${myResult.total_score} pts`;
+  }
+  if (msg.players_alive) document.getElementById('arenaAlive').textContent = `👥 ${msg.players_alive.length} vivos`;
+}
+
+function showArenaEliminated(msg) {
+  if (msg.username === username) {
+    clearInterval(timerInterval);
+    document.getElementById('arenaEliminatedMsg').style.display = 'block';
+    document.getElementById('arenaSubmitBtn').style.display = 'none';
+    document.getElementById('arenaLeaveBtn').style.display = 'block';
+  }
+  document.getElementById('arenaAlive').textContent = `👥 ${msg.players_alive_count} vivos`;
+}
+
+function showArenaGameOver(msg) {
+  clearInterval(timerInterval);
+  arenaSessionActive = false;
+  document.getElementById('gameOverWinner').textContent = msg.winner_username || 'Sin ganador';
+  document.getElementById('gameOverRobot').textContent = msg.winner_username === username ? '🏆' : '😢';
+  const scores = msg.final_scores || {};
+  document.getElementById('gameOverScores').innerHTML =
+    '<div style="color:#888;font-size:12px;font-weight:bold;margin-bottom:8px;">PUNTAJES FINALES</div>' +
+    Object.entries(scores).map(([uid, score]) =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #333;"><span>${uid}</span><span style="color:#00FF88;font-weight:bold;">${score} pts</span></div>`
+    ).join('');
+  showScreen('arenaGameOverScreen');
+}
+
+function leaveArena() {
+  if (arenaWs) { arenaWs.close(); arenaWs = null; }
+  arenaSessionActive = false;
+  document.getElementById('activeRoomPanel').style.display = 'none';
+  showScreen('menuScreen');
+}
+
+function leaveArenaGame() { leaveArena(); }
+</script>
+</body>
+</html>

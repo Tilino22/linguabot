@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LinguaBotArena.Views.ArenaGamePage"
+             BackgroundColor="#0A0A1A"
+             Title="Arena Battle">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,*" Margin="0,10,0,15">
+            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Start">
+                <Label x:Name="Player1Label" Text="Tú" FontSize="14"
+                       TextColor="White" FontAttributes="Bold"/>
+                <Label x:Name="Score1Label" Text="0 pts" FontSize="20"
+                       TextColor="#00FF88" FontAttributes="Bold"/>
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1" HorizontalOptions="End">
+                <Label x:Name="Player2Label" Text="Oponente" FontSize="14"
+                       TextColor="White" FontAttributes="Bold" HorizontalOptions="End"/>
+                <Label x:Name="Score2Label" Text="0 pts" FontSize="20"
+                       TextColor="#FF6B6B" FontAttributes="Bold" HorizontalOptions="End"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15">
+
+                <!-- Robot + estado -->
+                <Border BackgroundColor="#12122A" Stroke="#00FF88"
+                        StrokeThickness="2" StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Padding="16" Spacing="8" HorizontalOptions="Center">
+                        <Label x:Name="RobotEmoji" Text="🤖" FontSize="50"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="StatusLabel" Text="¡Batalla en curso!"
+                               FontSize="14" TextColor="#00FF88"
+                               HorizontalOptions="Center" FontAttributes="Italic"/>
+                        <Label x:Name="RoundLabel" Text="Ronda 1/5"
+                               FontSize="12" TextColor="#888899"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Instrucciones -->
+                <Border BackgroundColor="#0D0D2A" Stroke="#333355"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8">
+                    <VerticalStackLayout Padding="12,8" Spacing="3">
+                        <Label x:Name="InstructionTitle" Text="📌 ¿Qué hacer?"
+                               FontSize="12" FontAttributes="Bold" TextColor="#00FF88"/>
+                        <Label x:Name="InstructionText" Text="Espera la pregunta..."
+                               FontSize="12" TextColor="#AAAACC"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Pregunta -->
+                <Border x:Name="ChallengeBox" BackgroundColor="#12122A"
+                        Stroke="#4ECDC4" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15" IsVisible="False">
+                    <VerticalStackLayout Padding="20" Spacing="12">
+                        <Label x:Name="ChallengeType" Text="" FontSize="11"
+                               TextColor="#4ECDC4" FontAttributes="Bold"/>
+                        <Label x:Name="ChallengeQuestion" Text="" FontSize="20"
+                               TextColor="White" FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
+                        <ProgressBar x:Name="TimerBar" Progress="1"
+                                     ProgressColor="#00FF88" BackgroundColor="#333333"/>
+                        <Label x:Name="TimerLabel" Text="30s" FontSize="12"
+                               TextColor="#888888" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Respuesta -->
+                <Border x:Name="AnswerBox" BackgroundColor="#12122A"
+                        Stroke="#555555" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10" IsVisible="False">
+                    <Entry x:Name="AnswerEntry" Placeholder="Tu respuesta..."
+                           PlaceholderColor="#555577" TextColor="White"
+                           BackgroundColor="Transparent" FontSize="16"/>
+                </Border>
+
+                <!-- Feedback ronda -->
+                <Border x:Name="FeedbackBox" BackgroundColor="#12122A"
+                        Stroke="#555555" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15" IsVisible="False">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label x:Name="FeedbackTitle" Text="" FontSize="16"
+                               FontAttributes="Bold" HorizontalOptions="Center"
+                               TextColor="White"/>
+                        <VerticalStackLayout x:Name="ResultsStack" Spacing="6"/>
+                        <Label x:Name="CorrectAnswerLabel" Text="" FontSize="13"
+                               TextColor="#00FF88" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón -->
+        <Button x:Name="ActionButton" Grid.Row="2"
+                Text="ENVIAR RESPUESTA"
+                BackgroundColor="#00FF88" TextColor="#0A0A1A"
+                FontAttributes="Bold" FontSize="16"
+                HeightRequest="55" Margin="0,10,0,0"
+                CornerRadius="15" IsEnabled="False"
+                Clicked="OnActionClicked"/>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="LinguaBotArena.Views.MainMenuPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#0A0A1A">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20">
+
+            <!-- Header Usuario -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,10,0,0">
+                <VerticalStackLayout>
+                    <Label x:Name="WelcomeLabel" Text="Hola, Jugador!"
+                           FontSize="22" FontAttributes="Bold" TextColor="White"/>
+                    <Label x:Name="RankLabel" Text="Rookie • Nivel 1"
+                           FontSize="13" TextColor="#888888"/>
+                </VerticalStackLayout>
+                <Label Text="🤖" FontSize="45" Grid.Column="1" x:Name="AvatarLabel"/>
+            </Grid>
+
+            <!-- XP Bar -->
+            <VerticalStackLayout Spacing="5">
+                <Label x:Name="XpLabel" Text="0 XP" FontSize="12" TextColor="#00FF88"/>
+                <ProgressBar x:Name="XpBar" Progress="0" ProgressColor="#00FF88"
+                             BackgroundColor="#1A1A2E" HeightRequest="8"/>
+            </VerticalStackLayout>
+
+            <!-- Robot animado -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#00FF88"
+                   CornerRadius="20" Padding="20" Margin="0,10,0,0">
+                <VerticalStackLayout Spacing="10">
+                    <Label x:Name="RobotEmoji" Text="🤖" FontSize="70"
+                           HorizontalOptions="Center"/>
+                    <Label x:Name="RobotMessage" Text="¡Listo para aprender!"
+                           FontSize="16" TextColor="#00FF88"
+                           HorizontalOptions="Center" FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label Text="SELECCIONA MODO" FontSize="13" TextColor="#888888"
+                   FontAttributes="Bold" Margin="0,10,0,0"/>
+
+            <!-- Training -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#4ECDC4"
+                   CornerRadius="15" Padding="0">
+                <Grid Padding="20" ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="🏠" FontSize="35" VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
+                        <Label Text="Training" FontSize="18"
+                               FontAttributes="Bold" TextColor="White"/>
+                        <Label Text="Practica solo y sube de nivel"
+                               FontSize="12" TextColor="#888888"/>
+                    </VerticalStackLayout>
+                    <Label Text="▶" FontSize="20" TextColor="#4ECDC4"
+                           Grid.Column="2" VerticalOptions="Center"/>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTrainingTapped"/>
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Frame>
+
+            <!-- Voice Training -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#00FF88"
+                   CornerRadius="15" Padding="0">
+                <Grid Padding="20" ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="🎤" FontSize="35" VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
+                        <Label Text="Voice Training" FontSize="18"
+                               FontAttributes="Bold" TextColor="White"/>
+                        <Label Text="Practica hablando con el robot 3D"
+                               FontSize="12" TextColor="#888888"/>
+                    </VerticalStackLayout>
+                    <Label Text="▶" FontSize="20" TextColor="#00FF88"
+                           Grid.Column="2" VerticalOptions="Center"/>
+                    <Grid.GestureRecognizers>
+<TapGestureRecognizer Tapped="OnVoiceTrainingClicked"/>
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Frame>
+
+            <!-- Arena -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#FF6B6B"
+                   CornerRadius="15" Padding="0">
+                <Grid Padding="20" ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="⚔️" FontSize="35" VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
+                        <Label Text="Arena" FontSize="18"
+                               FontAttributes="Bold" TextColor="White"/>
+                        <Label Text="Compite contra otros jugadores"
+                               FontSize="12" TextColor="#888888"/>
+                    </VerticalStackLayout>
+                    <Label Text="▶" FontSize="20" TextColor="#FF6B6B"
+                           Grid.Column="2" VerticalOptions="Center"/>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnArenaTapped"/>
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Frame>
+
+            <!-- Leaderboard -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#FFE66D"
+                   CornerRadius="15" Padding="0">
+                <Grid Padding="20" ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="🏆" FontSize="35" VerticalOptions="Center"/>
+                    <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
+                        <Label Text="Leaderboard" FontSize="18"
+                               FontAttributes="Bold" TextColor="White"/>
+                        <Label Text="Ve el ranking global"
+                               FontSize="12" TextColor="#888888"/>
+                    </VerticalStackLayout>
+                    <Label Text="▶" FontSize="20" TextColor="#FFE66D"
+                           Grid.Column="2" VerticalOptions="Center"/>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLeaderboardTapped"/>
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Frame>
+
+            <!-- Logout -->
+            <Button Text="Cerrar Sesión" BackgroundColor="Transparent"
+                    TextColor="#555555" FontSize="13"
+                    Clicked="OnLogoutClicked" Margin="0,10,0,0"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

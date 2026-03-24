@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LinguaBotArena.Views.VoiceTrainingPage"
+             BackgroundColor="#0A0A1A"
+             Title="Voice Training">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,10,0,15">
+            <Button Grid.Column="0" Text="←" BackgroundColor="Transparent"
+                    TextColor="#00FF88" FontSize="24" Clicked="OnBackClicked"/>
+            <Label Grid.Column="1" Text="🎤 VOICE TRAINING" FontSize="20"
+                   FontAttributes="Bold" TextColor="White"
+                   HorizontalOptions="Center" VerticalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="2" HorizontalOptions="End">
+                <Label x:Name="LevelLabel" Text="Nivel 1" FontSize="12"
+                       TextColor="#00FF88" HorizontalOptions="End"/>
+                <Label x:Name="StreakLabel" Text="🔥 0" FontSize="12"
+                       TextColor="#FFE66D" HorizontalOptions="End"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15">
+
+                <!-- Robot animado -->
+                <Border BackgroundColor="#12122A" Stroke="#00FF88"
+                        StrokeThickness="2" StrokeShape="RoundRectangle 20"
+                        HeightRequest="280">
+                    <GraphicsView x:Name="RobotView"
+                                  HeightRequest="280"
+                                  WidthRequest="500"/>
+                </Border>
+
+                <!-- Selector de idioma -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="IDIOMA" FontSize="12" TextColor="#888888" FontAttributes="Bold"/>
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button x:Name="BtnEnglish" Text="🇺🇸 Inglés"
+                                BackgroundColor="#1A1A2E" TextColor="White"
+                                CornerRadius="20" Clicked="OnLanguageSelected"/>
+                        <Button x:Name="BtnFrench" Text="🇫🇷 Francés"
+                                BackgroundColor="#1A1A2E" TextColor="White"
+                                CornerRadius="20" Clicked="OnLanguageSelected"/>
+                        <Button x:Name="BtnGerman" Text="🇩🇪 Alemán"
+                                BackgroundColor="#1A1A2E" TextColor="White"
+                                CornerRadius="20" Clicked="OnLanguageSelected"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Pregunta del robot -->
+                <Border x:Name="QuestionBox" BackgroundColor="#12122A"
+                        Stroke="#4ECDC4" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15" IsVisible="False">
+                    <VerticalStackLayout Padding="20" Spacing="10">
+                        <Label x:Name="QuestionTypeLabel" Text="" FontSize="11"
+                               TextColor="#4ECDC4" FontAttributes="Bold"/>
+                        <Label x:Name="QuestionLabel" Text="" FontSize="18"
+                               TextColor="White" FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               LineBreakMode="WordWrap"/>
+                        <Label x:Name="HintLabel" Text="" FontSize="12"
+                               TextColor="#888888" HorizontalOptions="Center"
+                               IsVisible="False"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Instrucciones -->
+                <Border x:Name="InstructionsBox" BackgroundColor="#0D1520"
+                        Stroke="#2A4A6A" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12" IsVisible="False">
+                    <VerticalStackLayout Padding="15" Spacing="6">
+                        <Label Text="💡 CÓMO RESPONDER" FontSize="11"
+                               TextColor="#4ECDC4" FontAttributes="Bold"/>
+                        <Label x:Name="InstructionsLabel" Text=""
+                               FontSize="13" TextColor="#AAAACC"
+                               LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Estado del micrófono -->
+                <Border x:Name="MicBox" BackgroundColor="#12122A"
+                        Stroke="#333355" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 15" IsVisible="False">
+                    <VerticalStackLayout Padding="16" Spacing="8" HorizontalOptions="Center">
+                        <Label x:Name="MicEmoji" Text="🎤" FontSize="40"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="MicStatusLabel" Text="Presiona para hablar"
+                               FontSize="14" TextColor="#AAAACC"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="TranscriptLabel" Text=""
+                               FontSize="15" TextColor="White"
+                               FontAttributes="Bold" HorizontalOptions="Center"
+                               IsVisible="False"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Feedback -->
+                <Border x:Name="FeedbackBox" BackgroundColor="#12122A"
+                        Stroke="#555555" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 15" IsVisible="False">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label x:Name="FeedbackEmoji" Text="" FontSize="30"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="FeedbackText" Text="" FontSize="15"
+                               TextColor="White" HorizontalOptions="Center"
+                               LineBreakMode="WordWrap"/>
+                        <Label x:Name="CorrectionText" Text="" FontSize="13"
+                               TextColor="#FF6B6B" HorizontalOptions="Center"
+                               IsVisible="False" LineBreakMode="WordWrap"/>
+                        <Label x:Name="XpText" Text="" FontSize="13"
+                               TextColor="#FFE66D" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón micrófono -->
+        <Button x:Name="MicButton" Grid.Row="2"
+                Text="🎤 HABLAR"
+                BackgroundColor="#00FF88" TextColor="#0A0A1A"
+                FontAttributes="Bold" FontSize="18"
+                HeightRequest="60" Margin="0,10,0,0"
+                CornerRadius="30" IsEnabled="False"
+                Clicked="OnMicButtonClicked"/>
+    </Grid>
+</ContentPage>

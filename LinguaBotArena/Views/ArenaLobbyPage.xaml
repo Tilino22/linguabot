@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="LinguaBotArena.Views.ArenaLobbyPage"
+             BackgroundColor="#0A0A1A"
+             Title="Arena">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,10,0,20">
+            <Button Grid.Column="0" Text="←" BackgroundColor="Transparent"
+                    TextColor="#00FF88" FontSize="24" Clicked="OnBackClicked"/>
+            <Label Grid.Column="1" Text="⚔️ ARENA" FontSize="22" FontAttributes="Bold"
+                   TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Robot -->
+                <Border BackgroundColor="#12122A" Stroke="#00FF88" StrokeThickness="2"
+                        StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Padding="20" Spacing="10" HorizontalOptions="Center">
+                        <Label x:Name="RobotEmoji" Text="🤖" FontSize="60" HorizontalOptions="Center"/>
+                        <Label x:Name="StatusLabel" Text="¿Listo para batallar?" FontSize="16"
+                               TextColor="#00FF88" HorizontalOptions="Center" FontAttributes="Italic"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Panel crear sala -->
+                <Border x:Name="CreateRoomSection" BackgroundColor="#12122A" Stroke="#333355" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout Padding="20" Spacing="12">
+                        <Label Text="CREAR SALA" FontSize="14" TextColor="#888899" FontAttributes="Bold"/>
+
+                        <Label Text="Idioma" TextColor="#AAAACC" FontSize="13"/>
+                        <HorizontalStackLayout Spacing="10">
+                            <Border x:Name="CreateLangEn" BackgroundColor="#1E1E3A" Stroke="#00FF88"
+                                    StrokeThickness="2" StrokeShape="RoundRectangle 20">
+                                <Label Text="🇺🇸 Inglés" TextColor="White" Padding="12,8"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCreateLangSelected" CommandParameter="english"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="CreateLangFr" BackgroundColor="#1E1E3A" Stroke="#333355"
+                                    StrokeThickness="1" StrokeShape="RoundRectangle 20">
+                                <Label Text="🇫🇷 Francés" TextColor="White" Padding="12,8"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCreateLangSelected" CommandParameter="french"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="CreateLangDe" BackgroundColor="#1E1E3A" Stroke="#333355"
+                                    StrokeThickness="1" StrokeShape="RoundRectangle 20">
+                                <Label Text="🇩🇪 Alemán" TextColor="White" Padding="12,8"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCreateLangSelected" CommandParameter="german"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <!-- Modo de juego -->
+                        <Label Text="MODO" TextColor="#AAAACC" FontSize="13"/>
+                        <HorizontalStackLayout Spacing="10">
+                            <Border x:Name="ModeClassic" BackgroundColor="#1E1E3A" Stroke="#00FF88"
+                                    StrokeThickness="2" StrokeShape="RoundRectangle 20">
+                                <Label Text="⚔️ Clásico" TextColor="White" Padding="12,8"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnModeSelected" CommandParameter="classic"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border x:Name="ModeBattleRoyale" BackgroundColor="#1E1E3A" Stroke="#333355"
+                                    StrokeThickness="1" StrokeShape="RoundRectangle 20">
+                                <Label Text="👑 Battle Royale" TextColor="White" Padding="12,8"/>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnModeSelected" CommandParameter="battle_royale"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <Button Text="⚔️ CREAR SALA" BackgroundColor="#00FF88" TextColor="#0A0A1A"
+                                FontAttributes="Bold" CornerRadius="12" HeightRequest="50"
+                                Clicked="OnCreateRoomClicked"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Panel unirse -->
+                <Border x:Name="JoinRoomSection" BackgroundColor="#12122A" Stroke="#333355" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout Padding="20" Spacing="12">
+                        <Label Text="UNIRSE A SALA" FontSize="14" TextColor="#888899" FontAttributes="Bold"/>
+                        <Entry x:Name="RoomCodeEntry" Placeholder="Código de sala (ej: ABC123)"
+                               PlaceholderColor="#555577" TextColor="White" BackgroundColor="#1E1E3A"
+                               FontSize="18" FontAttributes="Bold" MaxLength="6"
+                               HorizontalTextAlignment="Center"/>
+                        <Button Text="🚀 UNIRSE" BackgroundColor="#1E1E3A" TextColor="#00FF88"
+                                FontAttributes="Bold" CornerRadius="12" HeightRequest="50"
+                                BorderColor="#00FF88" BorderWidth="2"
+                                Clicked="OnJoinRoomClicked"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sala activa -->
+                <Border x:Name="ActiveRoomPanel" BackgroundColor="#0D1F0D" Stroke="#00FF88"
+                        StrokeThickness="2" StrokeShape="RoundRectangle 12" IsVisible="False">
+                    <VerticalStackLayout Padding="20" Spacing="12">
+                        <Label Text="SALA ACTIVA" FontSize="14" TextColor="#00FF88" FontAttributes="Bold"/>
+                        <Label x:Name="RoomCodeLabel" Text="Código: ------" FontSize="28"
+                               TextColor="White" FontAttributes="Bold" HorizontalOptions="Center"/>
+                        <Label x:Name="RoomLangLabel" Text="" TextColor="#AAAACC" FontSize="14"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="RoomModeLabel" Text="" TextColor="#FFE66D" FontSize="13"
+                               HorizontalOptions="Center"/>
+                        <BoxView HeightRequest="1" BackgroundColor="#333355"/>
+                        <Label Text="JUGADORES" TextColor="#888899" FontSize="12"/>
+                        <Label x:Name="PlayerCountLabel" Text="1 jugador en sala"
+                               TextColor="#00FF88" FontSize="14" HorizontalOptions="Center"/>
+                        <VerticalStackLayout x:Name="PlayersStack" Spacing="8"/>
+                        <Label x:Name="WaitingLabel" Text="⏳ Esperando jugadores..."
+                               TextColor="#888899" FontSize="14" HorizontalOptions="Center"/>
+                        <Button x:Name="StartGameButton" Text="🎮 INICIAR BATALLA"
+                                BackgroundColor="#00FF88" TextColor="#0A0A1A"
+                                FontAttributes="Bold" CornerRadius="12" HeightRequest="50"
+                                IsVisible="False" Clicked="OnStartGameClicked"/>
+                        <Label x:Name="WaitHostLabel" Text="⏳ Esperando que el host inicie..."
+                               TextColor="#888899" FontSize="13" HorizontalOptions="Center"
+                               IsVisible="False"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label x:Name="ErrorLabel" TextColor="#FF4444" FontSize="14"
+                       HorizontalOptions="Center" IsVisible="False"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

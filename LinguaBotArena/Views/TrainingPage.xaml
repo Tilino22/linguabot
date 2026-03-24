@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="LinguaBotArena.Views.TrainingPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#0A0A1A"
+    Title="Training">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,15" ColumnDefinitions="Auto,*,Auto">
+            <Button Text="←" BackgroundColor="Transparent"
+                    TextColor="#00FF88" FontSize="20"
+                    Clicked="OnBackClicked" />
+            <Label Grid.Column="1" Text="Training"
+                   FontSize="20" FontAttributes="Bold"
+                   TextColor="White" HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+            <VerticalStackLayout Grid.Column="2" HorizontalOptions="End">
+                <Label x:Name="LevelLabel" Text="Nivel 1"
+                       FontSize="12" TextColor="#00FF88"
+                       HorizontalOptions="End" />
+                <Label x:Name="StreakLabel" Text="🔥 0"
+                       FontSize="12" TextColor="#FFE66D"
+                       HorizontalOptions="End" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Contenido principal -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20" Spacing="20">
+
+                <!-- Robot 2D -->
+                <Border BackgroundColor="#1A1A2E"
+                        StrokeThickness="2"
+                        Stroke="#00FF88"
+                        StrokeShape="RoundRectangle 20">
+                    <VerticalStackLayout Padding="20" Spacing="10">
+                        <Label x:Name="RobotEmoji" Text="🤖"
+                               FontSize="70" HorizontalOptions="Center" />
+                        <Label x:Name="RobotMessage"
+                               Text="¡Selecciona un idioma para comenzar!"
+                               FontSize="15" TextColor="#00FF88"
+                               HorizontalOptions="Center"
+                               FontAttributes="Italic" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Selector de idioma -->
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="IDIOMA" FontSize="12"
+                           TextColor="#888888" FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button x:Name="BtnEnglish" Text="🇺🇸 Inglés"
+                                BackgroundColor="#1A1A2E" TextColor="White"
+                                CornerRadius="20" Clicked="OnLanguageSelected" />
+                        <Button x:Name="BtnFrench" Text="🇫🇷 Francés"
+                                BackgroundColor="#1A1A2E" TextColor="White"
+                                CornerRadius="20" Clicked="OnLanguageSelected" />
+                        <Button x:Name="BtnGerman" Text="🇩🇪 Alemán"
+                                BackgroundColor="#1A1A2E" TextColor="White"
+                                CornerRadius="20" Clicked="OnLanguageSelected" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Desafío -->
+                <Border x:Name="ChallengeBox"
+                        BackgroundColor="#1A1A2E"
+                        StrokeThickness="2"
+                        Stroke="#4ECDC4"
+                        StrokeShape="RoundRectangle 15"
+                        IsVisible="False">
+                    <VerticalStackLayout Padding="20" Spacing="15">
+                        <Label x:Name="ChallengeType"
+       Text="TRADUCCIÓN"
+       FontSize="11" TextColor="#4ECDC4"
+       FontAttributes="Bold" />
+
+<!-- Instrucciones -->
+<Border BackgroundColor="#0D0D2A" Stroke="#333355"
+        StrokeThickness="1" StrokeShape="RoundRectangle 8">
+    <VerticalStackLayout Padding="12,8" Spacing="3">
+        <Label x:Name="InstructionTitle" Text="📌 ¿Qué hacer?"
+               FontSize="12" FontAttributes="Bold" TextColor="#00FF88"/>
+        <Label x:Name="InstructionText" Text="Selecciona un idioma para comenzar"
+               FontSize="12" TextColor="#AAAACC"/>
+    </VerticalStackLayout>
+</Border>
+                        <Label x:Name="ChallengeQuestion"
+                               Text=""
+                               FontSize="22" TextColor="White"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center" />
+                        <Label x:Name="HintLabel"
+                               Text=""
+                               FontSize="12" TextColor="#888888"
+                               HorizontalOptions="Center"
+                               IsVisible="False" />
+                        <!-- Timer -->
+                        <ProgressBar x:Name="TimerBar"
+                                     Progress="1"
+                                     ProgressColor="#00FF88"
+                                     BackgroundColor="#333333" />
+                        <Label x:Name="TimerLabel"
+                               Text="30s"
+                               FontSize="12" TextColor="#888888"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Respuesta -->
+                <Border x:Name="AnswerBox"
+                        BackgroundColor="#1A1A2E"
+                        StrokeThickness="1"
+                        Stroke="#555555"
+                        StrokeShape="RoundRectangle 10"
+                        IsVisible="False">
+<Entry x:Name="AnswerEntry"
+       Placeholder="Escribe tu respuesta..."
+       PlaceholderColor="#555555"
+       TextColor="White"
+       BackgroundColor="Transparent"
+       FontSize="16" />
+                </Border>
+
+                <!-- Feedback -->
+                <Border x:Name="FeedbackBox"
+                        BackgroundColor="#1A1A2E"
+                        StrokeThickness="2"
+                        Stroke="#555555"
+                        StrokeShape="RoundRectangle 15"
+                        IsVisible="False">
+                    <VerticalStackLayout Padding="15" Spacing="8">
+                        <Label x:Name="FeedbackEmoji"
+                               Text="" FontSize="30"
+                               HorizontalOptions="Center" />
+                        <Label x:Name="FeedbackText"
+                               Text="" FontSize="15"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+                        <Label x:Name="CorrectionText"
+                               Text="" FontSize="13"
+                               TextColor="#FF6B6B"
+                               HorizontalOptions="Center"
+                               IsVisible="False" />
+                        <Label x:Name="XpText"
+                               Text="" FontSize="13"
+                               TextColor="#FFE66D"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Botón de acción -->
+        <Button x:Name="ActionButton"
+                Grid.Row="2"
+                Text="COMENZAR"
+                BackgroundColor="#00FF88"
+                TextColor="#0A0A1A"
+                FontAttributes="Bold"
+                FontSize="16"
+                HeightRequest="55"
+                Margin="20"
+                CornerRadius="15"
+                Clicked="OnActionClicked" />
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,15 @@
+{
+  "runtimeOptions": {
+    "tfm": "net11.0",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "11.0.0-preview.1.26104.118"
+    },
+    "configProperties": {
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+      "CSWINRT_USE_WINDOWS_UI_XAML_PROJECTIONS": false,
+      "Microsoft.Maui.RuntimeFeature.IsIVisualAssemblyScanningEnabled": false,
+      "Microsoft.Maui.RuntimeFeature.AreBindingInterceptorsSupported": true
+    }
+  }
+}

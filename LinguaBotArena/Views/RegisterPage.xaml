@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="LinguaBotArena.Views.RegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#0A0A1A">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="40" Spacing="15" VerticalOptions="Center">
+
+            <!-- Header -->
+            <Label
+                Text="🤖"
+                FontSize="60"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="Crear Cuenta"
+                FontSize="28"
+                FontAttributes="Bold"
+                TextColor="#00FF88"
+                HorizontalOptions="Center" />
+
+            <Label
+                Text="Elige tu color de robot"
+                FontSize="13"
+                TextColor="#888888"
+                HorizontalOptions="Center"
+                Margin="0,10,0,0" />
+
+            <!-- Avatar Colors -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="15">
+                <Button x:Name="Color1" BackgroundColor="#00FF88"
+                        WidthRequest="40" HeightRequest="40"
+                        CornerRadius="20" Clicked="OnColorSelected" />
+                <Button x:Name="Color2" BackgroundColor="#FF6B6B"
+                        WidthRequest="40" HeightRequest="40"
+                        CornerRadius="20" Clicked="OnColorSelected" />
+                <Button x:Name="Color3" BackgroundColor="#4ECDC4"
+                        WidthRequest="40" HeightRequest="40"
+                        CornerRadius="20" Clicked="OnColorSelected" />
+                <Button x:Name="Color4" BackgroundColor="#FFE66D"
+                        WidthRequest="40" HeightRequest="40"
+                        CornerRadius="20" Clicked="OnColorSelected" />
+                <Button x:Name="Color5" BackgroundColor="#A29BFE"
+                        WidthRequest="40" HeightRequest="40"
+                        CornerRadius="20" Clicked="OnColorSelected" />
+            </HorizontalStackLayout>
+
+            <!-- Robot Preview -->
+            <Label
+                x:Name="RobotPreview"
+                Text="🤖"
+                FontSize="50"
+                HorizontalOptions="Center" />
+
+            <!-- Username -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#00FF88" CornerRadius="10" Padding="5">
+                <Entry
+                    x:Name="UsernameEntry"
+                    Placeholder="Nombre de usuario"
+                    PlaceholderColor="#555555"
+                    TextColor="White"
+                    BackgroundColor="Transparent"
+                    FontSize="16" />
+            </Frame>
+
+            <!-- Email -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#00FF88" CornerRadius="10" Padding="5">
+                <Entry
+                    x:Name="EmailEntry"
+                    Placeholder="Correo electrónico"
+                    PlaceholderColor="#555555"
+                    TextColor="White"
+                    BackgroundColor="Transparent"
+                    FontSize="16"
+                    Keyboard="Email" />
+            </Frame>
+
+            <!-- Password -->
+            <Frame BackgroundColor="#1A1A2E" BorderColor="#00FF88" CornerRadius="10" Padding="5">
+                <Entry
+                    x:Name="PasswordEntry"
+                    Placeholder="Contraseña"
+                    PlaceholderColor="#555555"
+                    TextColor="White"
+                    BackgroundColor="Transparent"
+                    FontSize="16"
+                    IsPassword="True" />
+            </Frame>
+
+            <!-- Error -->
+            <Label
+                x:Name="ErrorLabel"
+                TextColor="#FF4444"
+                FontSize="13"
+                HorizontalOptions="Center"
+                IsVisible="False" />
+
+            <!-- Register Button -->
+            <Button
+                x:Name="RegisterButton"
+                Text="CREAR CUENTA"
+                BackgroundColor="#00FF88"
+                TextColor="#0A0A1A"
+                FontAttributes="Bold"
+                FontSize="16"
+                CornerRadius="10"
+                HeightRequest="50"
+                Clicked="OnRegisterClicked" />
+
+            <!-- Back Button -->
+            <Button
+                Text="¿Ya tienes cuenta? Inicia sesión"
+                BackgroundColor="Transparent"
+                TextColor="#00FF88"
+                FontSize="14"
+                Clicked="OnBackClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
